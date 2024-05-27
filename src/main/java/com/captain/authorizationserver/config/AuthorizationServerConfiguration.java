@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.io.IOException;
@@ -39,6 +40,9 @@ public class AuthorizationServerConfiguration {
 
     @Value("${alias}")
     private String alias;
+
+    @Value("${providerUrl}")
+    private String providerUrl;
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -70,5 +74,10 @@ public class AuthorizationServerConfiguration {
                 return password.toCharArray();
             }
         });
+    }
+
+    @Bean
+    AuthorizationServerSettings authServerSettings() {
+        return AuthorizationServerSettings.builder().issuer(providerUrl).build();
     }
 }
