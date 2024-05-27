@@ -1,13 +1,12 @@
-package com.bharath.springcloud.security;
+package com.captain.authorizationserver;
 
+import com.captain.authorizationserver.entities.User;
+import com.captain.authorizationserver.repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import com.bharath.springcloud.security.entities.User;
-import com.bharath.springcloud.security.repos.UserRepo;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

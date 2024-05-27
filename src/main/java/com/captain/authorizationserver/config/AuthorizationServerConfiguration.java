@@ -4,7 +4,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.PasswordLookup;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +13,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -49,6 +49,9 @@ public class AuthorizationServerConfiguration {
     @Value("${providerUrl}")
     private String providerUrl;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authServerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -70,15 +73,16 @@ public class AuthorizationServerConfiguration {
 
     private JWKSet buildJWKSet() throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
         KeyStore keyStore = KeyStore.getInstance("pkcs12");
-        InputStream resourceAsStream = this.getClass().getResourceAsStream(keyFile);
-        keyStore.load(resourceAsStream, alias.toCharArray());
+        try (InputStream fis = this.getClass().getClassLoader().getResourceAsStream(keyFile);) {
+            keyStore.load(fis, alias.toCharArray());
 
-        return JWKSet.load(keyStore, new PasswordLookup() {
-            @Override
-            public char[] lookupPassword(String s) {
-                return password.toCharArray();
-            }
-        });
+            return JWKSet.load(keyStore, new PasswordLookup() {
+                @Override
+                public char[] lookupPassword(String s) {
+                    return password.toCharArray();
+                }
+            });
+        }
     }
 
     @Bean
@@ -90,7 +94,7 @@ public class AuthorizationServerConfiguration {
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient registeredClient = RegisteredClient.withId("couponservice")
                 .clientId("couponclientapp")
-                .clientSecret("9999")
+                .clientSecret(passwordEncoder.encode("9999"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
