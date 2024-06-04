@@ -103,9 +103,11 @@ public class AuthorizationServerConfiguration {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient registeredClient = RegisteredClient.withId("couponservice")
+        RegisteredClient registeredClient = RegisteredClient
+                .withId("couponservice")
                 .clientId("couponclientapp")
-                .clientSecret(passwordEncoder.encode("9999")).clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .clientSecret(passwordEncoder.encode("9999"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("https://oidcdebugger.com/debug")
@@ -118,7 +120,7 @@ public class AuthorizationServerConfiguration {
     @Bean
     public TokenSettings tokenSettings() {
         return TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofMinutes(30l)).build();
+                .accessTokenTimeToLive(Duration.ofMinutes(30L)).build();
     }
 
     @Bean
